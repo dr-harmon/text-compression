@@ -49,7 +49,21 @@ private:
     // Performs an "upsert": If the given key already exists, its value
     // is replaced with the given one, otherwise a new key/value is added.
     void put(const K& key, const V& value, Node *node) {
-        // TODO
+        if (key < node->key) {
+            if (node->left) {
+                put(key, value, node->left);
+            } else {
+                node->left = makeNode(key, value);
+            }
+        } else if (key > node->key) {
+            if (node->right) {
+                put(key, value, node->right);
+            } else {
+                node->right = makeNode(key, value);
+            }            
+        } else {
+            node->value = value;
+        }
     }
 
     // Searches for the key starting at the given node.
@@ -217,6 +231,16 @@ public:
     // Frees all memory allocated by the tree.    
     ~BinarySearchTree() {
         deleteTree(root);
+    }
+
+    // Overloads the greater-than operator to order the BST according
+    // to its root's key.
+    bool operator>(const BinarySearchTree<K,V>& other) const {
+        if (!root || !other.root) {
+            throw std::runtime_error("Cannot compare empty trees");
+        }
+
+        return root->key > other.root->key;
     }
 
     // Performs an "upsert": If the given key already exists, its value
